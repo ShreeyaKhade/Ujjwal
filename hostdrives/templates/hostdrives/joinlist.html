@@ -54,13 +54,19 @@
                       <form method="POST" action="{%url 'host'%}">
                         {%csrf_token%}
                         <div class="form-outline mb-4">
-                          <input type="text" name="driveName" id="form1" class="form-control" />
+                          <input type="text" name="driveName" id="form1" class="form-control" required/>
                           <label class="form-label" for="form1">Drive Name</label>
+                          <div class="invalid-feedback">
+                            Please fill this.
+                          </div>
                         </div>
                       
                         <div class="form-outline mb-4">
-                          <input type="location" name="driveLocation" id="form3" class="form-control" />
+                          <input type="location" name="driveLocation" id="form3" class="form-control" required/>
                           <label class="form-label" for="form3">Location</label>
+                          <div class="invalid-feedback">
+                            Please fill this.
+                          </div>
                         </div>
               
                         <div class="form-outline mb-4 date" id="datetimepicker">
@@ -69,8 +75,11 @@
                         </div>
                         
                         <div class="form-outline mb-4">
-                          <textarea class="form-control" name="driveDescription" id="form5" rows="4"></textarea>
+                          <textarea class="form-control" name="driveDescription" id="form5" rows="4" required></textarea>
                           <label class="form-label" for="form5">Drive Details</label>
+                          <div class="invalid-feedback">
+                            Please fill this.
+                          </div>
                         </div>
                         <ol type="numeric" class="px-3 pt-3" style="font-size: 0.9rem">
                           <li> Acceptance of Terms: By using this website, you agree to be bound by these terms and conditions. If you do not agree to these terms, you should not use this website.
@@ -173,7 +182,7 @@
           </ul>
         </div>
     </nav>
-    {% comment %} {%if joinRcvd%}
+     {%if joinRcvd%}
     <div aria-live="assertive" role="alert" aria-atomic="true" class="bg-body-primary position-relative bd-example-toasts rounded-3">
       <div class="toast-container p-3  top-0 end-0" id="toastPlacement" data-original-class="toast-container p-3">
         <div class="toast fade text-bg-{{joinType}} pr-2 d-flex flex-row show" data-bs-delay="1000">
@@ -186,7 +195,7 @@
         </div>
       </div>
     </div>
-    {%endif%} {% endcomment %}
+    {%endif%}
     <div class="d-flex pt-5 flex-column w-100 h-auto">
         {%for drive in drives%}
         <div class="card card-mod mb-5 mx-auto" style="width: 75vw;">
@@ -194,11 +203,22 @@
             <h5 class="card-title fw-semibold py-2 my-auto">{{drive.name}}</h5>
 
             <div style="font-size:0.8rem;">This organiser has hosted {{userinfo.hosted}}</div>
+            <div id="ratingform">
+              <select id="drive-rating" name="drive-rating">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+              <input type="submit" value="submit">
+            </div>
+            
           </div>
             <div class="card-body">
               
               <p class="card-text">{{drive.date}}</p>
-              <p class="card-text">{{drive.location}}</p>
+              <p class="card-text"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30275.74077411984!2d73.82934928627505!3d18.462467037636618!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2eac85230ba47%3A0x871eddd0a8a0a108!2sSCTR&#39;S%20Pune%20Institute%20of%20Computer%20Technology!5e0!3m2!1sen!2sin!4v1683709176993!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></p>
               <p class="card-text">{{drive.description}}</p>
               <div class="d-flex justify-content-end ">
                   <!--div class="row"-->
@@ -294,7 +314,8 @@
                     </div>
                     {%endif%}
                     {%if not userinfo in drive.attendees.all%}
-                    <a href="{% url 'join' drive.id %}" class="btn btn-outline-success my-auto mx-1" >Join</a>
+                    <a href="{% url 'join' drive.id %}" class="btn btn-outline-success my-auto mx-1" onClick="send_email({{attendee.id}},{{attendee.user.email}},{{attendee.user.first_name}},{{drive.organizer.user.email}},{{drive.name}})">Join</a>
+                    
                     {%else%}
                     <div class="alert p-2 text-white mx-2 my-auto"  style="background-color: #198754;" role="alert">
                       Joined
@@ -323,6 +344,14 @@
           minDate:new Date()
        });
       };
+       $(document).ready(function()){
+        $('#ratingform').submit(function(event)){
+          var drivename=$('#')
+          var driverating=$('#drive-rating').val();
+          $.post({rating:driverating},function)
+        }
+      } 
+      
     
       function display(){
         $.myQuery();

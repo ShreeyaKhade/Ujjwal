@@ -5,11 +5,16 @@ from django.contrib.auth.models import User,auth
 from django.contrib.auth.decorators import login_required
 from .models import websiteUser
 # Create your views here.
+from django.http import HttpResponse
 from django.urls import reverse
 from datetime import datetime
-# joinRecvd=False
-# joinMessage=""
-# joinType=""
+from django.core.mail import send_mail, BadHeaderError, EmailMessage
+from django.conf import settings
+from django.template.loader import render_to_string
+joinRecvd=False
+joinMessage=""
+joinType=""
+emailmsg=""
 def home(request):
    return render(request,"hostdrives/homepage.html") 
 def host(request):
@@ -27,12 +32,12 @@ def host(request):
         
         prevHosted=currUser[0].hosted
         models.websiteUser.objects.filter(user=request.user).update(hosted=prevHosted+1)
-        # global joinRecvd
-        # global joinMessage
-        # global joinType
-        # joinRecvd=False
-        # joinMessage=""
-        # joinType=""
+        global joinRecvd
+        global joinMessage
+        global joinType
+        joinRecvd=False
+        joinMessage=""
+        joinType=""
         return redirect('joinlist')
 def register(request):
     if request.method=='POST':
@@ -63,14 +68,15 @@ def register(request):
     return redirect('loginform')
 @login_required(redirect_field_name='login')
 def joinlist(request):
-    
+    #drive_rating=request.POST.get('rating')
     userinfo=models.websiteUser.objects.get(user=request.user)
     # print(driveset[0].date)
     curr=datetime.now()
     driveset=models.drive.objects.filter(date__gt=curr)
-    # global joinRecvd
-    # global joinMessage
-    # global joinType
+    #driveset=models.drive.objects.filter(date__gt=curr).all().order_by('-rating')
+    global joinRecvd
+    global joinMessage
+    global joinType
     return render(request,"hostdrives/joinlist.html",{"drives": driveset,"userinfo":userinfo})      
 def join(request,id):
     print(id)
@@ -80,12 +86,23 @@ def join(request,id):
     
     prevHosted=currUser[0].attended
     models.websiteUser.objects.filter(user=request.user).update(attended=prevHosted+1)
-    # global joinRecvd
-    # global joinMessage
-    # global joinType
-    # joinRecvd=True
-    # joinMessage=currDrive.name+" Joined succesfully!"
-    # joinType="success"
+    # template='email_template.html'
+
+    
+    subject="Joined Successfully!"
+    message='abc'
+    email_from=settings.EMAIL_HOST_USER
+    recipient_list=[request.user.email]
+    send_mail(subject,message,email_from,recipient_list)
+    # except BadHeaderError:
+	# 	return HttpResponse('Invalid header found.')
+   
+    global joinRecvd
+    global joinMessage
+    global joinType
+    joinRecvd=True
+    joinMessage="joined successfully!"
+    joinType="success"
     return redirect('joinlist')
 def withdraw(request,id):
     currDrive=models.drive.objects.get(id=id)
@@ -94,12 +111,12 @@ def withdraw(request,id):
     
     prevHosted=currUser[0].attended
     models.websiteUser.objects.filter(user=request.user).update(attended=prevHosted-1)
-    # global joinRecvd
-    # global joinMessage
-    # global joinType
-    # joinRecvd=True
-    # joinMessage=currDrive.name+" Withdrew succesfully!"
-    # joinType="danger"
+    global joinRecvd
+    global joinMessage
+    global joinType
+    joinRecvd=True
+    joinMessage=currDrive.name+" Withdrew succesfully!"
+    joinType="danger"
     return redirect('joinlist')
 def login(request):
     if request.method=='POST':
@@ -113,19 +130,20 @@ def login(request):
             return redirect('joinlist')
     return redirect('home')
 def logout(request):
-    # global joinRecvd
-    # global joinMessage
-    # global joinType
-    # joinRecvd=False
-    # joinMessage=""
-    # joinType=""
+    global joinRecvd
+    global joinMessage
+    global joinType
+    joinRecvd=False
+    joinMessage=""
+    joinType=""
     auth_logout(request)
     return redirect('home')
 def loginform(request):
-    # global joinRecvd
-    # global joinMessage
-    # global joinType
-    # joinRecvd=False
-    # joinMessage=""
-    # joinType=""
+    global joinRecvd
+    global joinMessage
+    global joinType
+    joinRecvd=False
+    joinMessage=""
+    joinType=""
     return render(request,"hostdrives/loginform.html",{"exists": False})
+
