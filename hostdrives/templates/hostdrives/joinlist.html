@@ -201,10 +201,12 @@
         <div class="card card-mod mb-5 mx-auto" style="width: 75vw;">
           <div class="card-header   d-flex flex-column">
             <h5 class="card-title fw-semibold py-2 my-auto">{{drive.name}}</h5>
-
+            Rating: {{drive.rating}}
             <div style="font-size:0.8rem;">This organiser has hosted {{userinfo.hosted}}</div>
-            <div id="ratingform">
-              <select id="drive-rating" name="drive-rating">
+
+            <form id="ratingform" method="POST" action="{% url 'rating' drive.id %}">
+            {% csrf_token%}
+            <select id="drive-rating" name="drive-rating" selected="{{drive.rating}}">
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -212,7 +214,7 @@
                 <option value="5">5</option>
               </select>
               <input type="submit" value="submit">
-            </div>
+            </form>
             
           </div>
             <div class="card-body">

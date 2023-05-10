@@ -10,5 +10,6 @@ urlpatterns = [
     path("join/<int:id>",views.join,name='join'),
     path("withdraw/<int:id>",views.withdraw,name='withdraw'),
     path("host/",views.host,name='host'),
+    path("rating/<int:id>",views.rating,name='rating'),
     path("",views.home,name='home')
 ]

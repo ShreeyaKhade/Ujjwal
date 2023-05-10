@@ -17,6 +17,11 @@ joinType=""
 emailmsg=""
 def home(request):
    return render(request,"hostdrives/homepage.html") 
+def rating(request,id):
+    if request.method=="POST":
+        recievedRating=request.POST['drive-rating']
+        models.drive.objects.filter(id=id).update(rating=recievedRating)
+        return redirect('joinlist')
 def host(request):
     
     if request.method=='POST':
@@ -72,8 +77,8 @@ def joinlist(request):
     userinfo=models.websiteUser.objects.get(user=request.user)
     # print(driveset[0].date)
     curr=datetime.now()
-    driveset=models.drive.objects.filter(date__gt=curr)
-    #driveset=models.drive.objects.filter(date__gt=curr).all().order_by('-rating')
+    #driveset=models.drive.objects.filter(date__gt=curr)
+    driveset=models.drive.objects.filter(date__gt=curr).all().order_by('-rating')
     global joinRecvd
     global joinMessage
     global joinType
@@ -83,12 +88,8 @@ def join(request,id):
     currDrive=models.drive.objects.get(id=id)
     currUser=websiteUser.objects.filter(user=request.user)
     currDrive.attendees.add(currUser[0])
-    
     prevHosted=currUser[0].attended
     models.websiteUser.objects.filter(user=request.user).update(attended=prevHosted+1)
-    # template='email_template.html'
-
-    
     subject="Joined Successfully!"
     message='abc'
     email_from=settings.EMAIL_HOST_USER

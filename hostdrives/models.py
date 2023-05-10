@@ -1,3 +1,4 @@
+from itertools import count
 from typing import Any
 from django.db import models
 from django.contrib.auth.models import AbstractUser,User
@@ -14,6 +15,8 @@ class drive(models.Model):
     date=models.DateTimeField()
     description=models.TextField()
     location=models.CharField(max_length=255)
+    rating=models.IntegerField(default=0)
+
     attendees=models.ManyToManyField(websiteUser,related_name='attending_events',null=True)
     def __str__(self):
         return self.name
